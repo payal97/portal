@@ -143,7 +143,7 @@ class PastMeetupListView(MeetupLocationMixin, ListView):
     def get_queryset(self, **kwargs):
         self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
         meetup_list = Meetup.objects.filter(
-            meetup_location=self.meetup_location, date__lte=datetime.date.today()).order_by('date')
+            meetup_location=self.meetup_location, date__lt=datetime.date.today()).order_by('date')
         return meetup_list
 
     def get_meetup_location(self):
