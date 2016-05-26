@@ -239,6 +239,13 @@ class PastMeetupListViewTestCase(MeetupLocationViewBaseTestCase, TestCase):
                                              meetup_location=self.meetup_location,
                                              created_by=self.systers_user,
                                              last_updated=timezone.now())
+        self.meetup3 = Meetup.objects.create(title='Foo Baz', slug='foobar',
+                                             date=(timezone.now() - timezone.timedelta(2)).date(),
+                                             time=timezone.now().time(),
+                                             description='This is new test Meetup',
+                                             meetup_location=self.meetup_location,
+                                             created_by=self.systers_user,
+                                             last_updated=timezone.now())
 
     def test_view_past_meetup_list_view(self):
         """Test Past Meetup list view for correct http response and
