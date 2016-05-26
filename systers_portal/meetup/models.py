@@ -42,7 +42,8 @@ class Meetup(models.Model):
         return self.title
 
     def clean_fields(self, *args, **kwargs):
-        """Validate meetup date is not less than today's date and meetup time is not a time that has already passed."""
+        """Validate meetup date is not less than today's date and meetup time is not a time
+        that has already passed."""
         if self.date < timezone.now().date():
             raise ValidationError("Date should not be less than today's date.")
         if self.time:
