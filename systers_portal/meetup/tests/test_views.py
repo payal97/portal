@@ -267,5 +267,5 @@ class MeetupLocationSponsorsViewTestCase(MeetupLocationViewBaseTestCase, TestCas
         self.assertEqual(response.context['meetup_location'], self.meetup_location)
 
         nonexistent_url = reverse('sponsors_meetup_location', kwargs={'slug': 'bar'})
-        response = self.client.get(url)
+        response = self.client.get(nonexistent_url)
         self.assertEqual(response.status_code, 404)
