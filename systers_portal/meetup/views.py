@@ -2,15 +2,17 @@ import datetime
 
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
-from django.views.generic import DeleteView, TemplateView
+from django.views.generic import DeleteView, TemplateView, RedirectView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 from braces.views import LoginRequiredMixin
+from django.contrib.auth.models import User
 
 from meetup.forms import AddMeetupForm, EditMeetupForm
 from meetup.mixins import MeetupLocationMixin
 from meetup.models import Meetup, MeetupLocation
+from users.models import SystersUser
 
 
 class MeetupLocationAboutView(MeetupLocationMixin, TemplateView):
@@ -159,3 +161,19 @@ class MeetupLocationSponsorsView(MeetupLocationMixin, DetailView):
 
     def get_meetup_location(self):
         return get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
+
+
+class RemoveMeetupLocationMemberView(LoginRequiredMixin, MeetupLocationMixin, RedirectView):
+    """Remove a member from a meetup location"""
+    model = MeetupLocation
+    permanent = False
+
+    def get_redirect_url(self, *args, **kwargs):
+        self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug']) 
+        user = get_object_or_404(User, username=kwargs.get('username'))
+        systersuser = get_object_or_404(SystersUser, user=user)
+        self.meetup_location.members.remove(systersuser)
+        return reverse('members_meetup_location', kwargs={'slug': self.meetup_location.slug}) 
+
+    def get_meetup_location(self):
+        return self.meetup_location
