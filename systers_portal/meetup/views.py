@@ -9,7 +9,7 @@ from django.views.generic.list import ListView
 from braces.views import LoginRequiredMixin
 from django.contrib.auth.models import User
 
-from meetup.forms import AddMeetupForm, EditMeetupForm, AddMeetupLocationMemberForm, AddMeetupLocationOrganiserForm
+from meetup.forms import AddMeetupForm, EditMeetupForm, AddMeetupLocationMemberForm
 from meetup.mixins import MeetupLocationMixin
 from meetup.models import Meetup, MeetupLocation
 from users.models import SystersUser
@@ -78,7 +78,7 @@ class AddMeetupView(LoginRequiredMixin, MeetupLocationMixin, CreateView):
 
     def get_meetup_location(self):
         return self.meetup_location
-   
+
 
 class DeleteMeetupView(LoginRequiredMixin, MeetupLocationMixin, DeleteView):
     """Delete existing Meetup"""
@@ -170,11 +170,11 @@ class RemoveMeetupLocationMemberView(LoginRequiredMixin, MeetupLocationMixin, Re
     raise_exception = True
 
     def get_redirect_url(self, *args, **kwargs):
-        self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug']) 
+        self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
         user = get_object_or_404(User, username=kwargs.get('username'))
         systersuser = get_object_or_404(SystersUser, user=user)
         self.meetup_location.members.remove(systersuser)
-        return reverse('members_meetup_location', kwargs={'slug': self.meetup_location.slug}) 
+        return reverse('members_meetup_location', kwargs={'slug': self.meetup_location.slug})
 
     def get_meetup_location(self):
         return self.meetup_location

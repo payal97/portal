@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 from common.forms import ModelFormWithHelper
 from common.helpers import SubmitCancelFormHelper
-from meetup.models import Meetup, MeetupLocation
+from meetup.models import Meetup
 from users.models import SystersUser
 
 
