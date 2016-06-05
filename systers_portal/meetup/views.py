@@ -9,7 +9,7 @@ from django.views.generic.list import ListView
 from braces.views import LoginRequiredMixin
 from django.contrib.auth.models import User
 
-from meetup.forms import AddMeetupForm, EditMeetupForm
+from meetup.forms import AddMeetupForm, EditMeetupForm, AddMeetupLocationMemberForm, AddMeetupLocationOrganiserForm
 from meetup.mixins import MeetupLocationMixin
 from meetup.models import Meetup, MeetupLocation
 from users.models import SystersUser
@@ -78,7 +78,7 @@ class AddMeetupView(LoginRequiredMixin, MeetupLocationMixin, CreateView):
 
     def get_meetup_location(self):
         return self.meetup_location
-
+   
 
 class DeleteMeetupView(LoginRequiredMixin, MeetupLocationMixin, DeleteView):
     """Delete existing Meetup"""
@@ -167,6 +167,7 @@ class RemoveMeetupLocationMemberView(LoginRequiredMixin, MeetupLocationMixin, Re
     """Remove a member from a meetup location"""
     model = MeetupLocation
     permanent = False
+    raise_exception = True
 
     def get_redirect_url(self, *args, **kwargs):
         self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug']) 
@@ -176,4 +177,21 @@ class RemoveMeetupLocationMemberView(LoginRequiredMixin, MeetupLocationMixin, Re
         return reverse('members_meetup_location', kwargs={'slug': self.meetup_location.slug}) 
 
     def get_meetup_location(self):
+        return self.meetup_location
+
+
+class AddMeetupLocationMemberView(LoginRequiredMixin, MeetupLocationMixin, UpdateView):
+    """Add new member to meetup location"""
+    template_name = "meetup/add_member.html"
+    model = MeetupLocation
+    form_class = AddMeetupLocationMemberForm
+    raise_exception = True
+
+    def get_success_url(self):
+        """Supply the redirect URL in case of successful addition"""
+        self.get_meetup_location()
+        return reverse('members_meetup_location', kwargs={'slug': self.meetup_location.slug})
+
+    def get_meetup_location(self):
+        self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
         return self.meetup_location

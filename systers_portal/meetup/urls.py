@@ -3,8 +3,8 @@ from django.conf.urls import url
 from meetup.views import (MeetupLocationAboutView, MeetupLocationList, MeetupView,
                           MeetupLocationMembersView, AddMeetupView, DeleteMeetupView,
                           EditMeetupView, UpcomingMeetupsView, PastMeetupListView,
-                          MeetupLocationSponsorsView, RemoveMeetupLocationMemberView)
-
+                          MeetupLocationSponsorsView, RemoveMeetupLocationMemberView,
+                          AddMeetupLocationMemberView)
 
 urlpatterns = [
     url(r'^(?P<slug>[\w-]+)/about/$', MeetupLocationAboutView.as_view(),
@@ -25,5 +25,7 @@ urlpatterns = [
         name='sponsors_meetup_location'),
     url(r'^(?P<slug>[\w-]+)/remove/(?P<username>[\w.@+-]+)/$', RemoveMeetupLocationMemberView.as_view(),
         name='remove_member_meetup_location'),
+    url(r'^(?P<slug>[\w-]+)/add_member/$', AddMeetupLocationMemberView.as_view(),
+        name='add_member_meetup_location'),
     url(r'^(?P<slug>[\w-]+)/(?P<meetup_slug>[\w-]+)/$', MeetupView.as_view(), name="view_meetup"),
 ]
