@@ -68,7 +68,8 @@ class AddMeetupLocationMemberForm(ModelFormWithHelper):
         instance.username = self.username
         user = User.objects.get(username=instance.username)
         systersuser = SystersUser.objects.get(user=user)
-        self.meetup_location.members.add(systersuser)
+        if systersuser not in self.meetup_location.members.all():
+            self.meetup_location.members.add(systersuser)
         if commit:
             instance.save()
         return instance
