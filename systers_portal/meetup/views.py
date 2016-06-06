@@ -171,9 +171,11 @@ class RemoveMeetupLocationMemberView(LoginRequiredMixin, MeetupLocationMixin, Re
 
     def get_redirect_url(self, *args, **kwargs):
         self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
-        user = get_object_or_404(User, username=kwargs.get('username'))
+        user = get_object_or_404(User, username=self.kwargs.get('username'))
         systersuser = get_object_or_404(SystersUser, user=user)
         self.meetup_location.members.remove(systersuser)
+        if systersuser in self.meetup_location.organizers.all():
+            self.meetup_location.organizers.remove(systersuser)
         return reverse('members_meetup_location', kwargs={'slug': self.meetup_location.slug})
 
     def get_meetup_location(self):
@@ -194,4 +196,39 @@ class AddMeetupLocationMemberView(LoginRequiredMixin, MeetupLocationMixin, Updat
 
     def get_meetup_location(self):
         self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
+        return self.meetup_location
+
+
+class RemoveMeetupLocationOrganizerView(LoginRequiredMixin, MeetupLocationMixin, RedirectView):
+    """Remove the 'organizer' status of a meetup location member"""
+    model = MeetupLocation
+    permanent = False
+    raise_exception = True
+
+    def get_redirect_url(self, *args, **kwargs):
+        self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
+        user = get_object_or_404(User, username=self.kwargs.get('username'))
+        systersuser = get_object_or_404(SystersUser, user=user)
+        if len(self.meetup_location.organizers.all()) > 1:
+            self.meetup_location.organizers.remove(systersuser)
+        return reverse('members_meetup_location', kwargs={'slug': self.meetup_location.slug})
+
+    def get_meetup_location(self):
+        return self.meetup_location
+
+
+class MakeMeetupLocationOrganizerView(LoginRequiredMixin, MeetupLocationMixin, RedirectView):
+    """Make a meetup location member an organizer of the location"""
+    model = MeetupLocation
+    permanent = False
+    raise_exception = True
+
+    def get_redirect_url(self, *args, **kwargs):
+        self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
+        user = get_object_or_404(User, username=self.kwargs.get('username'))
+        systersuser = get_object_or_404(SystersUser, user=user)
+        self.meetup_location.organizers.add(systersuser)
+        return reverse('members_meetup_location', kwargs={'slug': self.meetup_location.slug})
+
+    def get_meetup_location(self):
         return self.meetup_location
