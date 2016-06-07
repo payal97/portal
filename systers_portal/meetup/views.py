@@ -173,9 +173,11 @@ class RemoveMeetupLocationMemberView(LoginRequiredMixin, MeetupLocationMixin, Re
         self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         systersuser = get_object_or_404(SystersUser, user=user)
-        self.meetup_location.members.remove(systersuser)
-        if systersuser in self.meetup_location.organizers.all():
+        organizers = self.meetup_location.organizers.all()
+        if systersuser in organizers and len(organizers) > 1:
             self.meetup_location.organizers.remove(systersuser)
+        if systersuser not in self.meetup_location.organizers.all():
+            self.meetup_location.members.remove(systersuser)
         return reverse('members_meetup_location', kwargs={'slug': self.meetup_location.slug})
 
     def get_meetup_location(self):
@@ -209,7 +211,8 @@ class RemoveMeetupLocationOrganizerView(LoginRequiredMixin, MeetupLocationMixin,
         self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         systersuser = get_object_or_404(SystersUser, user=user)
-        if len(self.meetup_location.organizers.all()) > 1:
+        organizers = self.meetup_location.organizers.all()
+        if systersuser in organizers and len(organizers) > 1:
             self.meetup_location.organizers.remove(systersuser)
         return reverse('members_meetup_location', kwargs={'slug': self.meetup_location.slug})
 
@@ -227,7 +230,9 @@ class MakeMeetupLocationOrganizerView(LoginRequiredMixin, MeetupLocationMixin, R
         self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         systersuser = get_object_or_404(SystersUser, user=user)
-        self.meetup_location.organizers.add(systersuser)
+        organizers = self.meetup_location.organizers.all()
+        if systersuser not in organizers:
+            self.meetup_location.organizers.add(systersuser)
         return reverse('members_meetup_location', kwargs={'slug': self.meetup_location.slug})
 
     def get_meetup_location(self):
