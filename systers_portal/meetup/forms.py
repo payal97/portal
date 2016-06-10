@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 from common.forms import ModelFormWithHelper
 from common.helpers import SubmitCancelFormHelper
-from meetup.models import Meetup
+from meetup.models import Meetup, MeetupLocation
 from users.models import SystersUser
 
 
@@ -81,3 +81,21 @@ class AddMeetupLocationMemberForm(ModelFormWithHelper):
 
         if len(User.objects.filter(username=username)) != 1:
             raise forms.ValidationError("Enter username of an existing user")
+
+
+class AddMeetupLocationForm(ModelFormWithHelper):
+    """Form to create new Meetup Location"""
+    class Meta:
+        model = MeetupLocation
+        fields = ('name', 'slug', 'location', 'description', 'email', 'sponsors')
+        helper_class = SubmitCancelFormHelper
+        helper_cancel_href = "{% url 'list_meetup_location' %}"
+
+
+class EditMeetupLocationForm(ModelFormWithHelper):
+    """Form to edit Meetup Location"""
+    class Meta:
+        model = MeetupLocation
+        fields = ('name', 'slug', 'location', 'description', 'email', 'sponsors')
+        helper_class = SubmitCancelFormHelper
+        helper_cancel_href = "{% url 'about_meetup_location' meetup_location.slug %}"
