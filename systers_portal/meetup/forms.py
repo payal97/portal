@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 
 from common.forms import ModelFormWithHelper
 from common.helpers import SubmitCancelFormHelper
@@ -59,15 +60,15 @@ class AddMeetupLocationMemberForm(ModelFormWithHelper):
     def __init__(self, *args, **kwargs):
         super(AddMeetupLocationMemberForm, self).__init__(*args, **kwargs)
         self.meetup_location = kwargs.get('instance')
-        if 'data' in kwargs:
+        if self.is_bound:
             self.username = kwargs['data']['username']
 
     def save(self, commit=True):
         """Override save to map input username to User and append it to the meetup location."""
         instance = super(AddMeetupLocationMemberForm, self).save(commit=False)
         instance.username = self.username
-        user = User.objects.get(username=instance.username)
-        systersuser = SystersUser.objects.get(user=user)
+        user = get_object_or_404(User, username=instance.username)
+        systersuser = get_object_or_404(SystersUser, user=user)
         if systersuser not in self.meetup_location.members.all():
             self.meetup_location.members.add(systersuser)
         if commit:

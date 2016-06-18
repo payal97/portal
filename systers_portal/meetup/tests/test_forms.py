@@ -5,7 +5,8 @@ from django.utils.timezone import timedelta
 from cities_light.models import City, Country
 
 
-from meetup.forms import AddMeetupForm, EditMeetupForm, AddMeetupLocationForm
+from meetup.forms import (AddMeetupForm, EditMeetupForm, AddMeetupLocationMemberForm,
+                          AddMeetupLocationForm, EditMeetupLocationForm)
 from meetup.models import Meetup, MeetupLocation
 from users.models import SystersUser
 
@@ -72,14 +73,28 @@ class EditMeetupFormTestCase(MeetupFormTestCaseBase, TestCase):
         self.assertEqual(meetup.created_by, self.systers_user)
         self.assertEqual(meetup.meetup_location, self.meetup_location)
 
-'''
+
 class AddMeetupLocationMemberFormTestCase(MeetupFormTestCaseBase, TestCase):
     def setUp(self):
+        super(AddMeetupLocationMemberFormTestCase, self).setUp()
         self.user2 = User.objects.create_user(username='baz', password='bazbar')
         self.systers_user2 = SystersUser.objects.get(user=self.user2)
 
     def test_add_meetup_location_member_form(self):
-'''
+        """Test add meetup location Member form"""
+        invalid_data = {'username': 'non_existent'}
+        form = AddMeetupLocationMemberForm(data=invalid_data)
+        self.assertFalse(form.is_valid())
+
+        data = {'username': 'baz'}
+        form = AddMeetupLocationMemberForm(data=data)
+        self.assertTrue(form.is_valid())
+        form.save()
+
+        meetup_location = MeetupLocation.objects.get()
+        members = meetup_location.members.all()
+        self.assertContains(members, username)
+
 
 class AddMeetupLocationFormTestCase(MeetupFormTestCaseBase, TestCase):
     def test_add_meetup_location_form(self):
@@ -88,7 +103,8 @@ class AddMeetupLocationFormTestCase(MeetupFormTestCaseBase, TestCase):
         form = AddMeetupLocationForm(data=invalid_data)
         self.assertFalse(form.is_valid())
 
-        data = {'name': 'Bar Systers', 'slug': 'bar', 'location': 'Baz, Bar',
+        location_id = self.location.id
+        data = {'name': 'Bar Systers', 'slug': 'bar', 'location': location_id,
                 'description': 'test test test.', 'sponsors': 'BaaBaa'}
         form = AddMeetupLocationForm(data=data)
         self.assertTrue(form.is_valid())
