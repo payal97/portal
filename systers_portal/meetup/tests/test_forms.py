@@ -86,14 +86,15 @@ class AddMeetupLocationMemberFormTestCase(MeetupFormTestCaseBase, TestCase):
         form = AddMeetupLocationMemberForm(data=invalid_data)
         self.assertFalse(form.is_valid())
 
-        data = {'username': 'baz'}
-        form = AddMeetupLocationMemberForm(data=data)
+        username = self.user2.get_username()
+        data = {'username': username}
+        self.meetup_location = MeetupLocation.objects.get()
+        form = AddMeetupLocationMemberForm(data=data, instance=self.meetup_location)
         self.assertTrue(form.is_valid())
         form.save()
 
-        meetup_location = MeetupLocation.objects.get()
-        members = meetup_location.members.all()
-        self.assertContains(members, username)
+        members = self.meetup_location.members.all()
+        self.assertTrue(self.systers_user2 in members)
 
 
 class AddMeetupLocationFormTestCase(MeetupFormTestCaseBase, TestCase):

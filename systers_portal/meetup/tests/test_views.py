@@ -591,14 +591,82 @@ class AddMeetupLocationViewTestCase(MeetupLocationViewBaseTestCase, TestCase):
 
         self.client.login(username='foo', password='foobar')
         url = reverse('add_meetup_location')
-        data = {'name': 'Bar Systers', 'slug': 'bar', 'location': self.location,
-                'description': "It's a new meetup location", 'sponsors': 'BarBaz'}
+        data = {'name': 'Bar Systers', 'slug': 'bar', 'location': self.location.id,
+                'description': "It's a new meetup location", 'sponsors': 'BaaBaa'}
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 302)
         new_meetup_location = MeetupLocation.objects.get(slug='bar')
         self.assertTrue(new_meetup_location.name, 'Bar Systers')
 
 
-# class EditMeetupLocationViewTestCase(MeetupLocationViewBaseTestCase, TestCase):
+class EditMeetupLocationViewTestCase(MeetupLocationViewBaseTestCase, TestCase):
+    def test_get_edit_meetup_location_view(self):
+        """Test GET request to edit meetup location"""
+        url = reverse("edit_meetup_location", kwargs={'slug': 'foo'})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
 
-# class DeleteMeetupLocationViewTestCase(MeetupLocationViewBaseTestCase, TestCase):
+        self.client.login(username='foo', password='foobar')
+        nonexistent_url = reverse("edit_meetup_location", kwargs={'slug': 'bar'})
+        response = self.client.get(nonexistent_url)
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'meetup/edit_meetup_location.html')
+
+    def test_post_edit_meetup_view(self):
+        """Test POST request to edit meetup location"""
+        url = reverse("edit_meetup_location", kwargs={'slug': 'foo'})
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 403)
+
+        self.client.login(username='foo', password='foobar')
+        nonexistent_url = reverse("edit_meetup_location", kwargs={'slug': 'bar'})
+        response = self.client.post(nonexistent_url)
+        self.assertEqual(response.status_code, 404)
+
+        data = {'name': 'Bar Systers', 'slug': 'foo', 'location': self.location.id,
+                'description': "It's an edited meetup location", 'sponsors': 'BlackSheep'}
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.endswith('/meetup/foo/about/'))
+
+
+class DeleteMeetupLocationViewTestCase(MeetupLocationViewBaseTestCase, TestCase):
+    def setUp(self):
+        super(DeleteMeetupLocationViewTestCase, self).setUp()
+        self.meetup_location2 = MeetupLocation.objects.create(
+            name="Bar Systers", slug="bar", location=self.location,
+            description="It's another test meetup location", sponsors="BarBaz")
+
+    def test_get_delete_meetup_location_view(self):
+        """Test GET to confirm deletion of meetup location"""
+        url = reverse("delete_meetup_location", kwargs={'slug': 'bar'})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+        self.client.login(username='foo', password='foobar')
+        nonexistent_url = reverse("delete_meetup_location", kwargs={'slug': 'baz'})
+        response = self.client.get(nonexistent_url)
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'meetup/meetup_location_confirm_delete.html')
+
+    def test_post_delete_meetup_location_view(self):
+        """Test POST to delete meetup location"""
+        url = reverse("delete_meetup_location", kwargs={'slug': 'bar'})
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 403)
+
+        self.client.login(username='foo', password='foobar')
+        nonexistent_url = reverse("delete_meetup_location", kwargs={'slug': 'baz'})
+        response = self.client.post(nonexistent_url)
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.endswith('/meetup/locations/'))
+        self.assertSequenceEqual(MeetupLocation.objects.all(), [self.meetup_location])
