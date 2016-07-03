@@ -16,6 +16,7 @@
             {% if "delete_meetup" in meetup_perms %}
               <li><a href="{% url 'delete_meetup' meetup_location.slug meetup.slug %}">Delete Meetup</a></li>
             {% endif %}
+            <li><a href="{% url "rsvp_meetup" meetup_location.slug meetup.slug %}">RSVP</a></li>
         {% endif %}
       </ol>
     </div>
