@@ -6,7 +6,7 @@
       <h4>Meetup Location Actions</h4>
       <ol class="list-unstyled">
         {% if "add_meetuplocation" in meetup_location_perms %}
-          <li><a href="{% url 'add_meetup_location' %}">Add Meetup Location</a></li>
+          <li><a href="{% url 'add_meetup_location' %}">Add New Meetup Location</a></li>
         {% endif %}
         {% if "change_meetuplocation" in meetup_location_perms %}
           <li><a href="{% url 'edit_meetup_location' meetup_location.slug %}">Edit Meetup Location</a></li>
