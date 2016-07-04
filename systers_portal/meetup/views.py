@@ -475,3 +475,20 @@ class RsvpMeetupView(LoginRequiredMixin, MeetupLocationMixin, CreateView):
     def get_meetup_location(self):
         self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
         return self.meetup_location
+
+
+class RsvpGoingView(MeetupLocationMixin, ListView):
+    """List of members whose rsvp status is 'coming'"""
+    template_name = "meetup/rsvp_going.html"
+    model = Rsvp
+    paginated_by = 30
+
+    def get_queryset(self, **kwargs):
+        self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
+        self.meetup = get_object_or_404(Meetup, slug=self.kwargs['meetup_slug'],
+                                        meetup_location=self.meetup_location)       
+        rsvp_list = Rsvp.objects.filter(meetup=self.meetup, coming=True)
+        return rsvp_list
+
+    def get_meetup_location(self):
+        return self.meetup_location
