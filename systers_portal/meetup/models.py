@@ -33,9 +33,9 @@ class MeetupLocation(models.Model):
             ('delete_meetup_location_member', 'Delete meetup location member'),
             ('add_meetup_location_organizer', 'Add meetup location organizer'),
             ('delete_meetup_location_organizer', 'Delete meetup location organizer'),
-	        ('approve_meetup_location_joinrequest', 'Approve meetup location join request'),
+            ('approve_meetup_location_joinrequest', 'Approve meetup location join request'),
             ('delete_meetup_location_joinrequest', 'Delete meetup location join request'),
-        ) 
+        )
 
     def __str__(self):
         return self.name

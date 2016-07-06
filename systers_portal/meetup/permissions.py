@@ -20,7 +20,7 @@ organizer_permissions = member_permissions + [
     "delete_meetup_location_member",
     "add_meetup_location_organizer",
     "delete_meetup_location_organizer",
-	"approve_meetup_location_joinrequest",
+    "approve_meetup_location_joinrequest",
     "delete_meetup_location_joinrequest"
 ]
 

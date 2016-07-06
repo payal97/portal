@@ -335,8 +335,10 @@ class MeetupLocationJoinRequestsView(LoginRequiredMixin, PermissionRequiredMixin
     def check_permissions(self, request):
         """Check if the request user has the permission to approve or reject a join request for
         the meetup location. The permission holds true for superusers."""
-        return (request.user.has_perm('approve_meetup_location_joinrequest', self.meetup_location)
-                and request.user.has_perm('reject_meetup_location_joinrequest', self.meetup_location))
+        return (request.user.has_perm('approve_meetup_location_joinrequest',
+                                      self.meetup_location) and
+                request.user.has_perm('reject_meetup_location_joinrequest',
+                                      self.meetup_location))
 
 
 class ApproveMeetupLocationJoinRequestView(LoginRequiredMixin, PermissionRequiredMixin,
