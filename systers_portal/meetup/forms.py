@@ -124,3 +124,12 @@ class AddMeetupCommentForm(ModelFormWithHelper):
         if commit:
             instance.save()
         return instance
+
+
+class EditMeetupCommentForm(ModelFormWithHelper):
+    """Form to edit a comment for a Meetup"""
+    class Meta:
+        model = Comment
+        fields = ('body',)
+        helper_class = SubmitCancelFormHelper
+        helper_cancel_href = "{% url 'view_meetup' meetup_location.slug meetup.slug %}"

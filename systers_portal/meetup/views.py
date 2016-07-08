@@ -12,9 +12,10 @@ from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 
 from meetup.forms import (AddMeetupForm, EditMeetupForm, AddMeetupLocationMemberForm,
-                          AddMeetupLocationForm, EditMeetupLocationForm, AddMeetupCommentForm)
+                          AddMeetupLocationForm, EditMeetupLocationForm, AddMeetupCommentForm,
+                          EditMeetupCommentForm)
 from meetup.mixins import MeetupLocationMixin
-from meetup.models import Meetup, MeetupLocation
+from meetup.models import Meetup, MeetupLocation, Rsvp
 from users.models import SystersUser
 from common.models import Comment
 
@@ -482,4 +483,39 @@ class AddMeetupCommentView(LoginRequiredMixin, MeetupLocationMixin, CreateView):
         return context
 
     def get_meetup_location(self):
+        return self.meetup_location
+
+
+class EditMeetupCommentView(LoginRequiredMixin, MeetupLocationMixin, UpdateView):
+    """Edit a meetup's comment"""
+    template_name = "meetup/edit_comment.html"
+    model = Comment
+    form_class = EditMeetupCommentForm
+    raise_exception = True
+
+    def get_success_url(self):
+        self.get_meetup_location()
+        self.meetup = get_object_or_404(Meetup, slug=self.kwargs['meetup_slug'])
+        return reverse("view_meetup", kwargs={"slug": self.meetup_location.slug,
+                       "meetup_slug": self.meetup.slug})
+
+    def get_meetup_location(self):
+        self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
+        return self.meetup_location
+
+
+class DeleteMeetupCommentView(LoginRequiredMixin, MeetupLocationMixin, DeleteView):
+    """Delete a meetup's comment"""
+    template_name = "meetup/comment_confirm_delete.html"
+    model = Comment
+    raise_exception = True
+
+    def get_success_url(self):
+        self.get_meetup_location()
+        self.meetup = get_object_or_404(Meetup, slug=self.kwargs['meetup_slug'])
+        return reverse("view_meetup", kwargs={"slug": self.meetup_location.slug,
+                       "meetup_slug": self.meetup.slug})
+
+    def get_meetup_location(self):
+        self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
         return self.meetup_location
