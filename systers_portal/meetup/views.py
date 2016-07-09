@@ -15,7 +15,7 @@ from meetup.forms import (AddMeetupForm, EditMeetupForm, AddMeetupLocationMember
                           AddMeetupLocationForm, EditMeetupLocationForm, AddMeetupCommentForm,
                           EditMeetupCommentForm)
 from meetup.mixins import MeetupLocationMixin
-from meetup.models import Meetup, MeetupLocation, Rsvp
+from meetup.models import Meetup, MeetupLocation
 from users.models import SystersUser
 from common.models import Comment
 

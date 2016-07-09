@@ -710,7 +710,8 @@ class EditMeetupCommentViewTestCase(MeetupLocationViewBaseTestCase, TestCase):
     def test_get_edit_meetup_comment_view(self):
         """Test GET request to edit a comment to a meetup"""
         self.client.login(username='foo', password='foobar')
-        url = reverse('edit_meetup_comment', kwargs={'slug': 'foo', 'meetup_slug': 'foo-bar-baz', 'pk': self.comment.id})
+        url = reverse('edit_meetup_comment', kwargs={'slug': 'foo', 'meetup_slug': 'foo-bar-baz',
+                      'pk': self.comment.id})
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
@@ -719,7 +720,8 @@ class EditMeetupCommentViewTestCase(MeetupLocationViewBaseTestCase, TestCase):
     def test_post_edit_meetup_comment_view(self):
         """Test POST request to edit a comment to a meetup"""
         self.client.login(username='foo', password='foobar')
-        url = reverse("edit_meetup_comment", kwargs={'slug': 'foo', 'meetup_slug': 'foo-bar-baz', 'pk': self.comment.id})
+        url = reverse("edit_meetup_comment", kwargs={'slug': 'foo', 'meetup_slug': 'foo-bar-baz',
+                      'pk': self.comment.id})
         data = {'body': 'This is an edited test comment'}
         response = self.client.post(url, data=data)
 
@@ -743,7 +745,8 @@ class DeleteMeetupCommentViewTestCase(MeetupLocationViewBaseTestCase, TestCase):
     def test_get_delete_meetup_comment_view(self):
         """Test GET request to delete a comment to a meetup"""
         self.client.login(username='foo', password='foobar')
-        url = reverse('delete_meetup_comment', kwargs={'slug': 'foo', 'meetup_slug': 'foo-bar-baz', 'pk': self.comment.id})
+        url = reverse('delete_meetup_comment', kwargs={'slug': 'foo', 'meetup_slug': 'foo-bar-baz',
+                      'pk': self.comment.id})
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
@@ -752,7 +755,8 @@ class DeleteMeetupCommentViewTestCase(MeetupLocationViewBaseTestCase, TestCase):
     def test_post_delete_meetup_comment_view(self):
         """Test POST request to delete a comment to a meetup"""
         self.client.login(username='foo', password='foobar')
-        url = reverse("delete_meetup_comment", kwargs={'slug': 'foo', 'meetup_slug': 'foo-bar-baz', 'pk': self.comment.id})
+        url = reverse("delete_meetup_comment", kwargs={'slug': 'foo', 'meetup_slug': 'foo-bar-baz',
+                      'pk': self.comment.id})
         response = self.client.post(url)
 
         self.assertEqual(response.status_code, 302)

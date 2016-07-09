@@ -55,9 +55,11 @@ urlpatterns = [
         name='delete_meetup_location'),
     url(r'^(?P<slug>[\w-]+)/(?P<meetup_slug>[\w-]+)/add_comment/$', AddMeetupCommentView.as_view(),
         name="add_meetup_comment"),
-    url(r'^(?P<slug>[\w-]+)/(?P<meetup_slug>[\w-]+)/edit_comment/(?P<pk>\d+)/$', EditMeetupCommentView.as_view(),
+    url(r'^(?P<slug>[\w-]+)/(?P<meetup_slug>[\w-]+)/edit_comment/(?P<pk>\d+)/$',
+        EditMeetupCommentView.as_view(),
         name="edit_meetup_comment"),
-    url(r'^(?P<slug>[\w-]+)/(?P<meetup_slug>[\w-]+)/delete_comment/(?P<pk>\d+)/$', DeleteMeetupCommentView.as_view(),
+    url(r'^(?P<slug>[\w-]+)/(?P<meetup_slug>[\w-]+)/delete_comment/(?P<pk>\d+)/$',
+        DeleteMeetupCommentView.as_view(),
         name="delete_meetup_comment"),
     url(r'^(?P<slug>[\w-]+)/(?P<meetup_slug>[\w-]+)/$', MeetupView.as_view(), name="view_meetup"),
 ]
