@@ -495,9 +495,13 @@ class EditMeetupCommentView(LoginRequiredMixin, MeetupLocationMixin, UpdateView)
 
     def get_success_url(self):
         self.get_meetup_location()
-        self.meetup = get_object_or_404(Meetup, slug=self.kwargs['meetup_slug'])
         return reverse("view_meetup", kwargs={"slug": self.meetup_location.slug,
-                       "meetup_slug": self.meetup.slug})
+                       "meetup_slug": self.object.content_object.slug})
+
+    def get_context_data(self, **kwargs):
+        context = super(EditMeetupCommentView, self).get_context_data(**kwargs)
+        context['meetup'] = get_object_or_404(Meetup, slug=self.kwargs['meetup_slug'])
+        return context
 
     def get_meetup_location(self):
         self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
@@ -512,9 +516,13 @@ class DeleteMeetupCommentView(LoginRequiredMixin, MeetupLocationMixin, DeleteVie
 
     def get_success_url(self):
         self.get_meetup_location()
-        self.meetup = get_object_or_404(Meetup, slug=self.kwargs['meetup_slug'])
         return reverse("view_meetup", kwargs={"slug": self.meetup_location.slug,
-                       "meetup_slug": self.meetup.slug})
+                       "meetup_slug": self.object.content_object.slug})
+
+    def get_context_data(self, **kwargs):
+        context = super(DeleteMeetupCommentView, self).get_context_data(**kwargs)
+        context['meetup'] = get_object_or_404(Meetup, slug=self.kwargs['meetup_slug'])
+        return context
 
     def get_meetup_location(self):
         self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
