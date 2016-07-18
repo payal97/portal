@@ -206,8 +206,8 @@ class EditMeetupView(MeetupLocationViewBaseTestCase, TestCase):
                 'description': "It's a edit test meetup."}
         self.client.login(username='foo', password='foobar')
         response = self.client.post(url, data=data)
-        self.assertTrue(response.url.endswith('/meetup/foo/bartes/'))
         self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.endswith('/meetup/foo/bartes/'))
 
 
 class UpcomingMeetupsViewTestCase(MeetupLocationViewBaseTestCase, TestCase):
@@ -504,7 +504,7 @@ class MeetupLocationJoinRequestsViewTestCase(MeetupLocationViewBaseTestCase, Tes
         self.assertEqual(response.status_code, 302)
 
         self.client.login(username='foo', password='foobar')
-        nonexistent_url = reverse('join_requests_meetup_location', kwargs={'slug': 'bar'})
+        nonexistent_url = reverse('join_requests_meetup_location', kwargs={'slug': 'baaa'})
         response = self.client.get(nonexistent_url)
         self.assertEqual(response.status_code, 404)
 
