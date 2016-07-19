@@ -332,7 +332,7 @@ class JoinMeetupLocationView(LoginRequiredMixin, MeetupLocationMixin, RedirectVi
         return self.meetup_location
 
 
-class MeetupLocationJoinRequestsView(LoginRequiredMixin,# PermissionRequiredMixin,
+class MeetupLocationJoinRequestsView(LoginRequiredMixin, PermissionRequiredMixin,
                                      MeetupLocationMixin, DetailView):
     """View all join requests for a meetup location"""
     model = MeetupLocation
@@ -347,16 +347,16 @@ class MeetupLocationJoinRequestsView(LoginRequiredMixin,# PermissionRequiredMixi
     def get_meetup_location(self):
         return self.object
 
-#    def check_permissions(self, request):
-#        """Check if the request user has the permission to approve or reject a join request for
-#        the meetup location. The permission holds true for superusers."""
-#        return (request.user.has_perm('approve_meetup_location_joinrequest',
-#                                      self.meetup_location) and
-#                request.user.has_perm('reject_meetup_location_joinrequest',
-#                                      self.meetup_location))
+    def check_permissions(self, request):
+        """Check if the request user has the permission to approve or reject a join request for
+        the meetup location. The permission holds true for superusers."""
+        return (request.user.has_perm('approve_meetup_location_joinrequest',
+                                      self.meetup_location) and
+                request.user.has_perm('reject_meetup_location_joinrequest',
+                                      self.meetup_location))
 
 
-class ApproveMeetupLocationJoinRequestView(LoginRequiredMixin,# PermissionRequiredMixin,
+class ApproveMeetupLocationJoinRequestView(LoginRequiredMixin, PermissionRequiredMixin,
                                            MeetupLocationMixin, RedirectView):
     """Approve a join request for a meetup location"""
     model = MeetupLocation
@@ -374,14 +374,14 @@ class ApproveMeetupLocationJoinRequestView(LoginRequiredMixin,# PermissionRequir
     def get_meetup_location(self):
         return self.meetup_location
 
-#    def check_permissions(self, request):
-#        """Check if the request user has the permission to approve a join request for the meetup
-#        location. The permission holds true for superusers."""
-#        self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
-#        return request.user.has_perm('approve_meetup_location_joinrequest', self.meetup_location)
+    def check_permissions(self, request):
+        """Check if the request user has the permission to approve a join request for the meetup
+        location. The permission holds true for superusers."""
+        self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
+        return request.user.has_perm('approve_meetup_location_joinrequest', self.meetup_location)
 
 
-class RejectMeetupLocationJoinRequestView(LoginRequiredMixin,# PermissionRequiredMixin,
+class RejectMeetupLocationJoinRequestView(LoginRequiredMixin, PermissionRequiredMixin,
                                           MeetupLocationMixin, RedirectView):
     """Reject a join request for a meetup location"""
     model = MeetupLocation
@@ -398,11 +398,11 @@ class RejectMeetupLocationJoinRequestView(LoginRequiredMixin,# PermissionRequire
     def get_meetup_location(self):
         return self.meetup_location
 
-#    def check_permissions(self, request):
-#        """Check if the request user has the permission to reject a join request for the meetup
-#        location. The permission holds true for superusers."""
-#        self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
-#        return request.user.has_perm('reject_meetup_location_joinrequest', self.meetup_location)
+    def check_permissions(self, request):
+        """Check if the request user has the permission to reject a join request for the meetup
+        location. The permission holds true for superusers."""
+        self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
+        return request.user.has_perm('reject_meetup_location_joinrequest', self.meetup_location)
 
 
 class AddMeetupLocationView(LoginRequiredMixin, PermissionRequiredMixin, MeetupLocationMixin,
@@ -579,7 +579,7 @@ class RsvpGoingView(MeetupLocationMixin, ListView):
     def get_queryset(self, **kwargs):
         self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
         self.meetup = get_object_or_404(Meetup, slug=self.kwargs['meetup_slug'],
-                                        meetup_location=self.meetup_location)       
+                                        meetup_location=self.meetup_location)
         rsvp_list = Rsvp.objects.filter(meetup=self.meetup, coming=True)
         return rsvp_list
 
