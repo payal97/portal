@@ -7,8 +7,8 @@ from django.contrib.contenttypes.models import ContentType
 
 from meetup.forms import (AddMeetupForm, EditMeetupForm, AddMeetupLocationMemberForm,
                           AddMeetupLocationForm, EditMeetupLocationForm, AddMeetupCommentForm,
-                          EditMeetupCommentForm)
-from meetup.models import Meetup, MeetupLocation
+                          EditMeetupCommentForm, AddSupportRequestForm, EditSupportRequestForm)
+from meetup.models import Meetup, MeetupLocation, SupportRequest
 from users.models import SystersUser
 from common.models import Comment
 
@@ -169,3 +169,38 @@ class EditMeetupCommentFormTestCase(MeetupFormTestCaseBase, TestCase):
         self.assertEqual(comments[0].body, 'This is an edited test comment')
         self.assertEqual(comments[0].author, self.systers_user)
         self.assertEqual(comments[0].content_object, self.meetup)
+
+
+class AddSupportRequestFormTestCase(MeetupFormTestCaseBase, TestCase):
+    def test_add_support_request_form(self):
+        """Test add Support Request form"""
+        data = {'description': 'This is a test description'}
+        form = AddSupportRequestForm(data=data, volunteer=self.systers_user,
+                                     meetup=self.meetup)
+        self.assertTrue(form.is_valid())
+        form.save()
+        support_requests = SupportRequest.objects.all()
+        self.assertEqual(len(support_requests), 1)
+        self.assertEqual(support_requests[0].description, 'This is a test description')
+        self.assertEqual(support_requests[0].volunteer, self.systers_user)
+        self.assertEqual(support_requests[0].meetup, self.meetup)
+
+
+class EditSupportRequestFormTestCase(MeetupFormTestCaseBase, TestCase):
+    def setUp(self):
+        super(EditSupportRequestFormTestCase, self).setUp()
+        self.support_request = SupportRequest.objects.create(
+            volunteer=self.systers_user, meetup=self.meetup,
+            description='This is a test description', is_approved=False)
+
+    def test_edit_support_request_form(self):
+        """Test edit Support Request form"""
+        data = {'description': 'This is an edited test description'}
+        form = EditSupportRequestForm(instance=self.support_request, data=data)
+        self.assertTrue(form.is_valid())
+        form.save()
+        support_requests = SupportRequest.objects.all()
+        self.assertEqual(len(support_requests), 1)
+        self.assertEqual(support_requests[0].description, 'This is an edited test description')
+        self.assertEqual(support_requests[0].volunteer, self.systers_user)
+        self.assertEqual(support_requests[0].meetup, self.meetup)

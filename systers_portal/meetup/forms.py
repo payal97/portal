@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 
 from common.forms import ModelFormWithHelper
 from common.helpers import SubmitCancelFormHelper
-from meetup.models import Meetup, MeetupLocation, Rsvp
+from meetup.models import Meetup, MeetupLocation, Rsvp, SupportRequest
 from users.models import SystersUser
 from common.models import Comment
 
@@ -149,3 +149,35 @@ class RsvpForm(ModelFormWithHelper):
         if commit:
             instance.save()
         return instance
+
+
+class AddSupportRequestForm(ModelFormWithHelper):
+    """Form to add a new Support Request"""
+    class Meta:
+        model = SupportRequest
+        fields = ('description',)
+        helper_class = SubmitCancelFormHelper
+        helper_cancel_href = "{% url 'view_meetup' meetup_location.slug meetup.slug %}"
+
+    def __init__(self, *args, **kwargs):
+        self.volunteer = kwargs.pop('volunteer')
+        self.meetup = kwargs.pop('meetup')
+        super(AddSupportRequestForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        """Override save to add volunteer and meetup to the instance"""
+        instance = super(AddSupportRequestForm, self).save(commit=False)
+        instance.volunteer = SystersUser.objects.get(user=self.volunteer)
+        instance.meetup = self.meetup
+        if commit:
+            instance.save()
+        return instance
+
+
+class EditSupportRequestForm(ModelFormWithHelper):
+    """Form to edit a Support Request"""
+    class Meta:
+        model = SupportRequest
+        fields = ('description',)
+        helper_class = SubmitCancelFormHelper
+        helper_cancel_href = "{% url 'view_meetup' meetup_location.slug meetup.slug %}"

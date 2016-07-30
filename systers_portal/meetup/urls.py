@@ -9,7 +9,9 @@ from meetup.views import (MeetupLocationAboutView, MeetupLocationList, MeetupVie
                           RejectMeetupLocationJoinRequestView, MeetupLocationJoinRequestsView,
                           AddMeetupLocationView, EditMeetupLocationView, DeleteMeetupLocationView,
                           JoinMeetupLocationView, AddMeetupCommentView, EditMeetupCommentView,
-                          DeleteMeetupCommentView, RsvpMeetupView, RsvpGoingView)
+                          DeleteMeetupCommentView, RsvpMeetupView, RsvpGoingView,
+                          AddSupportRequestView, EditSupportRequestView, DeleteSupportRequestView,
+                          SupportRequestView)
 
 urlpatterns = [
     url(r'^(?P<slug>[\w-]+)/about/$', MeetupLocationAboutView.as_view(),
@@ -65,5 +67,17 @@ urlpatterns = [
         name="rsvp_meetup"),
     url(r'^(?P<slug>[\w-]+)/(?P<meetup_slug>[\w-]+)/going/$', RsvpGoingView.as_view(),
         name="rsvp_going"),
+    url(r'^(?P<slug>[\w-]+)/(?P<meetup_slug>[\w-]+)/add_support_request/$',
+        AddSupportRequestView.as_view(),
+        name='add_support_request'),
+    url(r'^(?P<slug>[\w-]+)/(?P<meetup_slug>[\w-]+)/edit_support_request/(?P<pk>\d+)/$',
+        EditSupportRequestView.as_view(),
+        name="edit_support_request"),
+    url(r'^(?P<slug>[\w-]+)/(?P<meetup_slug>[\w-]+)/delete_support_request/(?P<pk>\d+)/$',
+        DeleteSupportRequestView.as_view(),
+        name='delete_support_request'),
+    url(r'^(?P<slug>[\w-]+)/(?P<meetup_slug>[\w-]+)/support_request/(?P<pk>\d+)/$',
+        SupportRequestView.as_view(),
+        name="view_support_request"),
     url(r'^(?P<slug>[\w-]+)/(?P<meetup_slug>[\w-]+)/$', MeetupView.as_view(), name="view_meetup"),
 ]

@@ -1,0 +1,23 @@
+{% extends "meetup/base.html" %}
+
+{% block meetup_location_page_content %}
+  <h2>Support Request</h2>
+  <div class="box-container box-body pt25">
+    <p> 
+      <b>Volunteer: </b> {{ support_request.volunteer }}
+    </p>
+    <p>
+      <b>Description: </b> {{ support_request.description|safe }} <br/>
+    </p>
+    <hr>
+    {% if support_request.is_approved %}
+      <p>
+        <b>Status: </b><i>Approved</i>
+      </p>
+    {% else %}
+      <p>
+        <b>Status: </b><i>Not Approved</i>
+      </p>
+    {% endif %}
+  </div>
+{% endblock %}
