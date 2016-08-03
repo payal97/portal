@@ -19,6 +19,8 @@
       {% if meetup.slug %}
         <li><a href="{% url 'rsvp_meetup' meetup_location.slug meetup.slug %}">RSVP</a></li>
         <li><a href="{% url 'rsvp_going' meetup_location.slug meetup.slug %}">Show Members Going</a></li>
+        <li><a href="{% url 'list_support_requests' meetup_location.slug meetup.slug %}">Show Support Requests</a></li>
+        <li><a href="{% url 'unapproved_support_requests' meetup_location.slug meetup.slug %}">Approve Support Requests</a></li>
         <li><a href="{% url 'add_support_request' meetup_location.slug meetup.slug %}">Add Support Request</a></li>
       {% endif %}
       {% if support_request.pk %}

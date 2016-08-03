@@ -181,3 +181,37 @@ class EditSupportRequestForm(ModelFormWithHelper):
         fields = ('description',)
         helper_class = SubmitCancelFormHelper
         helper_cancel_href = "{% url 'view_meetup' meetup_location.slug meetup.slug %}"
+
+
+class AddSupportRequestCommentForm(ModelFormWithHelper):
+    """Form to add a comment to a Support Request"""
+    class Meta:
+        model = Comment
+        fields = ('body',)
+        helper_class = SubmitCancelFormHelper
+        helper_cancel_href = "{% url 'view_support_request' meetup_location.slug meetup.slug" \
+                             " support_request.pk %}"
+
+    def __init__(self, *args, **kwargs):
+        self.content_object = kwargs.pop('content_object')
+        self.author = kwargs.pop('author')
+        super(AddSupportRequestCommentForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        """Override save to add content_object and author to the instance"""
+        instance = super(AddSupportRequestCommentForm, self).save(commit=False)
+        instance.content_object = self.content_object
+        instance.author = SystersUser.objects.get(user=self.author)
+        if commit:
+            instance.save()
+        return instance
+
+
+class EditSupportRequestCommentForm(ModelFormWithHelper):
+    """Form to edit a comment for a Support Request"""
+    class Meta:
+        model = Comment
+        fields = ('body',)
+        helper_class = SubmitCancelFormHelper
+        helper_cancel_href = "{% url 'view_support_request' meetup_location.slug meetup.slug" \
+                             " support_request.pk %}"

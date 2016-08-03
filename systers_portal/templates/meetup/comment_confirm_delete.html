@@ -1,7 +1,7 @@
 {% extends "meetup/base.html" %}
 
 {% block title %}
-  - {{ object.content_object }} - Delete comment
+  - Delete comment
 {% endblock %}
 
 {% load crispy_forms_tags %}
@@ -19,7 +19,7 @@
     <form action="{{ delete_url }}" method="post">
     {% csrf_token %}
     <p>Are you sure you want to delete this comment?</p>
-    <p>"{{ object.body }}"</p>
+    <p>"{{ object.body }}{{ object.description }}"</p>
     <input type="submit" value="Confirm" class="btn btn-danger" />
   </form>
   </div>
