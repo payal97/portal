@@ -701,19 +701,30 @@ class AddMeetupCommentViewTestCase(MeetupLocationViewBaseTestCase, TestCase):
 class EditMeetupCommentViewTestCase(MeetupLocationViewBaseTestCase, TestCase):
     def setUp(self):
         super(EditMeetupCommentViewTestCase, self).setUp()
+        self.user2 = User.objects.create_user(username='baz', password='bazbar')
+        self.systers_user2 = SystersUser.objects.get(user=self.user2)
         meetup_content_type = ContentType.objects.get(app_label='meetup', model='meetup')
         self.comment = Comment.objects.create(author=self.systers_user, is_approved=True,
                                               body='This is a test comment',
                                               content_type=meetup_content_type,
                                               object_id=self.meetup.id)
+        # Comment by another user. It should give a 403 Forbidden error.
+        self.comment2 = Comment.objects.create(author=self.systers_user2, is_approved=True,
+                                               body='This is a test comment',
+                                               content_type=meetup_content_type,
+                                               object_id=self.meetup.id)
 
     def test_get_edit_meetup_comment_view(self):
         """Test GET request to edit a comment to a meetup"""
         self.client.login(username='foo', password='foobar')
         url = reverse('edit_meetup_comment', kwargs={'slug': 'foo', 'meetup_slug': 'foo-bar-baz',
+                      'comment_pk': self.comment2.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+        url = reverse('edit_meetup_comment', kwargs={'slug': 'foo', 'meetup_slug': 'foo-bar-baz',
                       'comment_pk': self.comment.id})
         response = self.client.get(url)
-
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'meetup/edit_comment.html')
 
@@ -727,28 +738,40 @@ class EditMeetupCommentViewTestCase(MeetupLocationViewBaseTestCase, TestCase):
 
         self.assertEqual(response.status_code, 302)
         comments = Comment.objects.all()
-        self.assertEqual(len(comments), 1)
-        self.assertEqual(comments[0].body, 'This is an edited test comment')
-        self.assertEqual(comments[0].author, self.systers_user)
-        self.assertEqual(comments[0].content_object, self.meetup)
+        self.assertEqual(len(comments), 2)
+        comment = Comment.objects.get(id=self.comment.id)
+        self.assertEqual(comment.body, 'This is an edited test comment')
+        self.assertEqual(comment.author, self.systers_user)
+        self.assertEqual(comment.content_object, self.meetup)
 
 
 class DeleteMeetupCommentViewTestCase(MeetupLocationViewBaseTestCase, TestCase):
     def setUp(self):
         super(DeleteMeetupCommentViewTestCase, self).setUp()
+        self.user2 = User.objects.create_user(username='baz', password='bazbar')
+        self.systers_user2 = SystersUser.objects.get(user=self.user2)
         meetup_content_type = ContentType.objects.get(app_label='meetup', model='meetup')
         self.comment = Comment.objects.create(author=self.systers_user, is_approved=True,
                                               body='This is a test comment',
                                               content_type=meetup_content_type,
                                               object_id=self.meetup.id)
+        # Comment by another user. It should give a 403 Forbidden error.
+        self.comment2 = Comment.objects.create(author=self.systers_user2, is_approved=True,
+                                               body='This is a test comment',
+                                               content_type=meetup_content_type,
+                                               object_id=self.meetup.id)
 
     def test_get_delete_meetup_comment_view(self):
         """Test GET request to delete a comment to a meetup"""
         self.client.login(username='foo', password='foobar')
         url = reverse('delete_meetup_comment', kwargs={'slug': 'foo', 'meetup_slug': 'foo-bar-baz',
+                      'comment_pk': self.comment2.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+        url = reverse('delete_meetup_comment', kwargs={'slug': 'foo', 'meetup_slug': 'foo-bar-baz',
                       'comment_pk': self.comment.id})
         response = self.client.get(url)
-
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Confirm to delete")
 
@@ -761,7 +784,7 @@ class DeleteMeetupCommentViewTestCase(MeetupLocationViewBaseTestCase, TestCase):
 
         self.assertEqual(response.status_code, 302)
         comments = Comment.objects.all()
-        self.assertEqual(len(comments), 0)
+        self.assertEqual(len(comments), 1)
 
 
 class RsvpMeetupViewTestCase(MeetupLocationViewBaseTestCase, TestCase):
@@ -800,7 +823,8 @@ class RsvpGoingViewTestCase(MeetupLocationViewBaseTestCase, TestCase):
 
     def test_view_rsvp_going_view(self):
         """Test Rsvp going view for correct http response and all Rsvps in a list"""
-        url = reverse("rsvp_meetup", kwargs={'slug': 'foo', 'meetup_slug': 'foo-bar-baz'})
+        self.client.login(username='foo', password='foobar')
+        url = reverse("rsvp_going", kwargs={'slug': 'foo', 'meetup_slug': 'foo-bar-baz'})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "meetup/rsvp_going.html")
@@ -964,6 +988,10 @@ class UnapprovedSupportRequestsListViewTestCase(MeetupLocationViewBaseTestCase, 
         all support requests in a list"""
         url = reverse('unapproved_support_requests', kwargs={'slug': 'foo',
                       'meetup_slug': 'foo-bar-baz'})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+
+        self.client.login(username='foo', password='foobar')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "meetup/unapproved_support_requests.html")
