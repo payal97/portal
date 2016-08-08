@@ -524,7 +524,7 @@ class EditMeetupCommentView(LoginRequiredMixin, PermissionRequiredMixin, MeetupL
         return self.meetup_location
 
     def check_permissions(self, request):
-        """Check if the request user has the permission to edit a meetup comment."""        
+        """Check if the request user has the permission to edit a meetup comment."""
         self.comment = get_object_or_404(Comment, pk=self.kwargs['comment_pk'])
         systersuser = get_object_or_404(SystersUser, user=request.user)
         return systersuser == self.comment.author
@@ -553,7 +553,7 @@ class DeleteMeetupCommentView(LoginRequiredMixin, PermissionRequiredMixin, Meetu
         return self.meetup_location
 
     def check_permissions(self, request):
-        """Check if the request user has the permission to delete a meetup comment."""        
+        """Check if the request user has the permission to delete a meetup comment."""
         self.comment = get_object_or_404(Comment, pk=self.kwargs['comment_pk'])
         systersuser = get_object_or_404(SystersUser, user=request.user)
         return systersuser == self.comment.author
@@ -765,7 +765,7 @@ class UnapprovedSupportRequestsListView(LoginRequiredMixin, PermissionRequiredMi
         return self.meetup_location
 
     def check_permissions(self, request):
-        """Check if the request user has the permission to approve a support request."""        
+        """Check if the request user has the permission to approve a support request."""
         self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
         return request.user.has_perm('approve_support_request', self.meetup_location)
 
@@ -789,7 +789,7 @@ class ApproveSupportRequestView(LoginRequiredMixin, PermissionRequiredMixin, Mee
         return self.meetup_location
 
     def check_permissions(self, request):
-        """Check if the request user has the permission to approve a support request."""        
+        """Check if the request user has the permission to approve a support request."""
         self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
         return request.user.has_perm('approve_support_request', self.meetup_location)
 
@@ -812,12 +812,13 @@ class RejectSupportRequestView(LoginRequiredMixin, PermissionRequiredMixin, Meet
         return self.meetup_location
 
     def check_permissions(self, request):
-        """Check if the request user has the permission to reject a support request."""        
+        """Check if the request user has the permission to reject a support request."""
         self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
         return request.user.has_perm('reject_support_request', self.meetup_location)
 
 
-class AddSupportRequestCommentView(LoginRequiredMixin, MeetupLocationMixin, CreateView):
+class AddSupportRequestCommentView(LoginRequiredMixin, PermissionRequiredMixin,
+                                   MeetupLocationMixin, CreateView):
     """Add a comment to a Support Request"""
     template_name = "meetup/add_comment.html"
     model = Comment
@@ -831,7 +832,6 @@ class AddSupportRequestCommentView(LoginRequiredMixin, MeetupLocationMixin, Crea
     def get_form_kwargs(self):
         """Add content_object and author to the form kwargs."""
         kwargs = super(AddSupportRequestCommentView, self).get_form_kwargs()
-        self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
         self.meetup = get_object_or_404(Meetup, slug=self.kwargs['meetup_slug'])
         self.support_request = get_object_or_404(SupportRequest, pk=self.kwargs['pk'])
         kwargs.update({'content_object': self.support_request})
@@ -847,8 +847,15 @@ class AddSupportRequestCommentView(LoginRequiredMixin, MeetupLocationMixin, Crea
     def get_meetup_location(self):
         return self.meetup_location
 
+    def check_permissions(self, request):
+        """Check if the request user has the permission to add a comment to a Support Request.
+        The permission holds true for superusers."""
+        self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
+        return request.user.has_perm('add_support_request_comment', self.meetup_location)
 
-class EditSupportRequestCommentView(LoginRequiredMixin, MeetupLocationMixin, UpdateView):
+
+class EditSupportRequestCommentView(LoginRequiredMixin, PermissionRequiredMixin,
+                                    MeetupLocationMixin, UpdateView):
     """Edit a support request's comment"""
     template_name = "meetup/edit_comment.html"
     model = Comment
@@ -860,21 +867,30 @@ class EditSupportRequestCommentView(LoginRequiredMixin, MeetupLocationMixin, Upd
         self.get_meetup_location()
         return reverse("view_support_request", kwargs={"slug": self.meetup_location.slug,
                                                        "meetup_slug": self.meetup.slug,
-                                                       "pk": self.object.content_object.pk})
+                                                       "pk": self.support_request.pk})
 
     def get_context_data(self, **kwargs):
         context = super(EditSupportRequestCommentView, self).get_context_data(**kwargs)
         context['meetup'] = self.meetup
-        context['support_request'] = get_object_or_404(SupportRequest, pk=self.kwargs['pk'])
+        context['support_request'] = self.support_request
         return context
 
     def get_meetup_location(self):
         self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
         self.meetup = get_object_or_404(Meetup, slug=self.kwargs['meetup_slug'])
+        self.support_request = get_object_or_404(SupportRequest, pk=self.kwargs['pk'])
         return self.meetup_location
 
+    def check_permissions(self, request):
+        """Check if the request user has the permission to edit a comment to a Support Request.
+        The permission holds true for superusers."""
+        self.comment = get_object_or_404(Comment, pk=self.kwargs['comment_pk'])
+        systersuser = get_object_or_404(SystersUser, user=request.user)
+        return systersuser == self.comment.author
 
-class DeleteSupportRequestCommentView(LoginRequiredMixin, MeetupLocationMixin, DeleteView):
+
+class DeleteSupportRequestCommentView(LoginRequiredMixin, PermissionRequiredMixin,
+                                      MeetupLocationMixin, DeleteView):
     """Delete a support request's comment"""
     template_name = "meetup/comment_confirm_delete.html"
     model = Comment
@@ -885,15 +901,23 @@ class DeleteSupportRequestCommentView(LoginRequiredMixin, MeetupLocationMixin, D
         self.get_meetup_location()
         return reverse("view_support_request", kwargs={"slug": self.meetup_location.slug,
                                                        "meetup_slug": self.meetup.slug,
-                                                       "pk": self.object.content_object.pk})
+                                                       "pk": self.support_request.pk})
 
     def get_context_data(self, **kwargs):
         context = super(DeleteSupportRequestCommentView, self).get_context_data(**kwargs)
         context['meetup'] = self.meetup
-        context['support_request'] = get_object_or_404(SupportRequest, pk=self.kwargs['pk'])
+        context['support_request'] = self.support_request
         return context
 
     def get_meetup_location(self):
         self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
         self.meetup = get_object_or_404(Meetup, slug=self.kwargs['meetup_slug'])
+        self.support_request = get_object_or_404(SupportRequest, pk=self.kwargs['pk'])
         return self.meetup_location
+
+    def check_permissions(self, request):
+        """Check if the request user has the permission to edit a Support Request for a meetup.
+        The permission holds true for superusers."""
+        self.comment = get_object_or_404(Comment, pk=self.kwargs['comment_pk'])
+        systersuser = get_object_or_404(SystersUser, user=request.user)
+        return systersuser == self.comment.author
