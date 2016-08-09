@@ -10,6 +10,7 @@ from braces.views import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
+from pinax.notifications import models as notification
 
 from meetup.forms import (AddMeetupForm, EditMeetupForm, AddMeetupLocationMemberForm,
                           AddMeetupLocationForm, EditMeetupLocationForm, AddMeetupCommentForm,
@@ -296,6 +297,7 @@ class MakeMeetupLocationOrganizerView(LoginRequiredMixin, PermissionRequiredMixi
         organizers = self.meetup_location.organizers.all()
         if systersuser not in organizers:
             self.meetup_location.organizers.add(systersuser)
+            notification.send(systersuser, "made_organizer")
         return reverse('members_meetup_location', kwargs={'slug': self.meetup_location.slug})
 
     def get_meetup_location(self):
@@ -324,12 +326,14 @@ class JoinMeetupLocationView(LoginRequiredMixin, MeetupLocationMixin, RedirectVi
 
         join_requests = self.meetup_location.join_requests.all()
         members = self.meetup_location.members.all()
+        organizers = self.meetup_location.organizers.all()
 
         if systersuser not in join_requests and systersuser not in members:
             self.meetup_location.join_requests.add(systersuser)
             msg = "Your request to join meetup location {0} has been sent. In a short while " \
                   "someone will review your request."
             messages.add_message(request, messages.SUCCESS, msg.format(self.meetup_location))
+            notification.send(organizers, "new_join_request")
         elif systersuser in join_requests:
             msg = "You have already requested to join meetup location {0}. Please wait until " \
                   "someone reviews your request."
