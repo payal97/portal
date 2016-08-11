@@ -98,18 +98,18 @@ class AddMeetupView(LoginRequiredMixin, PermissionRequiredMixin, MeetupLocationM
         Used to autofill form fields with created_by and meetup_location without
         explicitly filling them up in the form."""
         kwargs = super(AddMeetupView, self).get_form_kwargs()
+        self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
         kwargs.update({'created_by': self.request.user})
         kwargs.update({'meetup_location': self.meetup_location})
         return kwargs
 
     def get_meetup_location(self):
-        self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
         return self.meetup_location
 
     def check_permissions(self, request):
         """Check if the request user has the permission to add a meetup to the meetup location.
         The permission holds true for superusers."""
-        return request.user.has_perm('add_meetup')
+        return request.user.has_perm('meetup.add_meetup')
 
 
 class DeleteMeetupView(LoginRequiredMixin, PermissionRequiredMixin, MeetupLocationMixin,
@@ -133,8 +133,7 @@ class DeleteMeetupView(LoginRequiredMixin, PermissionRequiredMixin, MeetupLocati
     def check_permissions(self, request):
         """Check if the request user has the permission to delete a meetup from the meetup
         location. The permission holds true for superusers."""
-        self.meetup = get_object_or_404(Meetup, slug=self.kwargs['meetup_slug'])
-        return request.user.has_perm('delete_meetup', self.meetup)
+        return request.user.has_perm('meetup.delete_meetup')
 
 
 class EditMeetupView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
@@ -153,6 +152,7 @@ class EditMeetupView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         """Add Meetup object to the context"""
         context = super(EditMeetupView, self).get_context_data(**kwargs)
+        self.meetup = get_object_or_404(Meetup, slug=self.kwargs['meetup_slug'])
         context['meetup'] = self.meetup
         context['meetup_location'] = self.meetup.meetup_location
         return context
@@ -160,8 +160,7 @@ class EditMeetupView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     def check_permissions(self, request):
         """Check if the request user has the permission to edit a meetup from the meetup location.
         The permission holds true for superusers."""
-        self.meetup = get_object_or_404(Meetup, slug=self.kwargs['meetup_slug'])
-        return request.user.has_perm('change_meetup', self.meetup)
+        return request.user.has_perm('meetup.change_meetup')
 
 
 class UpcomingMeetupsView(MeetupLocationMixin, ListView):
@@ -297,7 +296,7 @@ class MakeMeetupLocationOrganizerView(LoginRequiredMixin, PermissionRequiredMixi
         organizers = self.meetup_location.organizers.all()
         if systersuser not in organizers:
             self.meetup_location.organizers.add(systersuser)
-            notification.send(systersuser, "made_organizer")
+            notification.send([user], "made_organizer")
         return reverse('members_meetup_location', kwargs={'slug': self.meetup_location.slug})
 
     def get_meetup_location(self):
@@ -326,7 +325,7 @@ class JoinMeetupLocationView(LoginRequiredMixin, MeetupLocationMixin, RedirectVi
 
         join_requests = self.meetup_location.join_requests.all()
         members = self.meetup_location.members.all()
-        organizers = self.meetup_location.organizers.all()
+        organizers = [systers_user.user for systers_user in self.meetup_location.organizers.all()]
 
         if systersuser not in join_requests and systersuser not in members:
             self.meetup_location.join_requests.add(systersuser)
@@ -374,6 +373,7 @@ class ApproveMeetupLocationJoinRequestView(LoginRequiredMixin, PermissionRequire
         systersuser = get_object_or_404(SystersUser, user=user)
         self.meetup_location.members.add(systersuser)
         self.meetup_location.join_requests.remove(systersuser)
+        notification.send([user], "joined_meetup_location")
         return reverse('join_requests_meetup_location', kwargs={'slug': self.meetup_location.slug})
 
     def get_meetup_location(self):
@@ -427,7 +427,7 @@ class AddMeetupLocationView(LoginRequiredMixin, PermissionRequiredMixin, MeetupL
     def check_permissions(self, request):
         """Check if the request user has the permission to add a meetup location.
         The permission holds true for superusers."""
-        return request.user.has_perm('add_meetuplocation')
+        return request.user.has_perm('meetup.add_meetuplocation')
 
 
 class EditMeetupLocationView(LoginRequiredMixin, PermissionRequiredMixin, MeetupLocationMixin,
@@ -449,7 +449,7 @@ class EditMeetupLocationView(LoginRequiredMixin, PermissionRequiredMixin, Meetup
         """Check if the request user has the permission to edit a meetup location.
         The permission holds true for superusers."""
         self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
-        return request.user.has_perm('change_meetuplocation')
+        return request.user.has_perm('meetup.change_meetuplocation')
 
 
 class DeleteMeetupLocationView(LoginRequiredMixin, PermissionRequiredMixin, MeetupLocationMixin,
@@ -469,7 +469,7 @@ class DeleteMeetupLocationView(LoginRequiredMixin, PermissionRequiredMixin, Meet
         """Check if the request user has the permission to delete a meetup location.
         The permission holds true for superusers."""
         self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
-        return request.user.has_perm('delete_meetuplocation', self.meetup_location)
+        return request.user.has_perm('meetup.delete_meetuplocation')
 
 
 class AddMeetupCommentView(LoginRequiredMixin, MeetupLocationMixin, CreateView):
@@ -633,6 +633,7 @@ class AddSupportRequestView(LoginRequiredMixin, PermissionRequiredMixin, MeetupL
     def get_form_kwargs(self):
         """Add request user and meetup object to the form kwargs."""
         kwargs = super(AddSupportRequestView, self).get_form_kwargs()
+        self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
         self.meetup = get_object_or_404(Meetup, slug=self.kwargs['meetup_slug'])
         kwargs.update({'volunteer': self.request.user})
         kwargs.update({'meetup': self.meetup})
@@ -649,8 +650,7 @@ class AddSupportRequestView(LoginRequiredMixin, PermissionRequiredMixin, MeetupL
     def check_permissions(self, request):
         """Check if the request user has the permission to add a Support Request for a meetup.
         The permission holds true for superusers."""
-        self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
-        return request.user.has_perm('add_supportrequest')
+        return request.user.has_perm('meetup.add_supportrequest')
 
 
 class EditSupportRequestView(LoginRequiredMixin, PermissionRequiredMixin, MeetupLocationMixin,
@@ -679,8 +679,7 @@ class EditSupportRequestView(LoginRequiredMixin, PermissionRequiredMixin, Meetup
     def check_permissions(self, request):
         """Check if the request user has the permission to edit a Support Request for a meetup.
         The permission holds true for superusers."""
-        self.support_request = get_object_or_404(SupportRequest, pk=self.kwargs['pk'])
-        return request.user.has_perm('change_supportrequest', self.support_request)
+        return request.user.has_perm('meetup.change_supportrequest')
 
 
 class DeleteSupportRequestView(LoginRequiredMixin, PermissionRequiredMixin, MeetupLocationMixin,
@@ -696,13 +695,13 @@ class DeleteSupportRequestView(LoginRequiredMixin, PermissionRequiredMixin, Meet
                        "meetup_slug": self.object.meetup.slug})
 
     def get_meetup_location(self):
+        self.meetup_location = get_object_or_404(MeetupLocation, slug=self.kwargs['slug'])
         return self.meetup_location
 
     def check_permissions(self, request):
         """Check if the request user has the permission to delete a Support Request for a meetup.
         The permission holds true for superusers."""
-        self.support_request = get_object_or_404(SupportRequest, pk=self.kwargs['pk'])
-        return request.user.has_perm('delete_supportrequest', self.support_request)
+        return request.user.has_perm('meetup.delete_supportrequest')
 
 
 class SupportRequestView(MeetupLocationMixin, DetailView):
@@ -732,8 +731,8 @@ class SupportRequestsListView(MeetupLocationMixin, ListView):
 
     def get_queryset(self, **kwargs):
         self.meetup = get_object_or_404(Meetup, slug=self.kwargs['meetup_slug'])
-        support_requests = SupportRequest.objects.filter(meetup=self.meetup, is_approved=True)
-        return support_requests
+        supportrequest_list = SupportRequest.objects.filter(meetup=self.meetup, is_approved=True)
+        return supportrequest_list
 
     def get_context_data(self, **kwargs):
         context = super(SupportRequestsListView, self).get_context_data(**kwargs)
@@ -753,9 +752,9 @@ class UnapprovedSupportRequestsListView(LoginRequiredMixin, PermissionRequiredMi
 
     def get_queryset(self, **kwargs):
         self.meetup = get_object_or_404(Meetup, slug=self.kwargs['meetup_slug'])
-        unapproved_support_requests = SupportRequest.objects.filter(
+        supportrequest_list = SupportRequest.objects.filter(
             meetup=self.meetup, is_approved=False)
-        return unapproved_support_requests
+        return supportrequest_list
 
     def get_context_data(self, **kwargs):
         context = super(UnapprovedSupportRequestsListView, self).get_context_data(**kwargs)
@@ -783,6 +782,7 @@ class ApproveSupportRequestView(LoginRequiredMixin, PermissionRequiredMixin, Mee
         support_request = get_object_or_404(SupportRequest, pk=self.kwargs['pk'])
         support_request.is_approved = True
         support_request.save()
+        notification.send([support_request.volunteer.user], "support_request_approved")
         return reverse('unapproved_support_requests', kwargs={'slug': self.meetup_location.slug,
                        'meetup_slug': self.meetup.slug})
 

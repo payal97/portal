@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from pinax.notifications import models as notification
 
 from common.forms import ModelFormWithHelper
 from common.helpers import SubmitCancelFormHelper
@@ -35,8 +36,10 @@ class AddMeetupForm(ModelFormWithHelper):
         instance = super(AddMeetupForm, self).save(commit=False)
         instance.created_by = SystersUser.objects.get(user=self.created_by)
         instance.meetup_location = self.meetup_location
+        members = [systers_user.user for systers_user in self.meetup_location.members.all()]
         if commit:
             instance.save()
+            notification.send(members, "new_meetup")
         return instance
 
     def clean_date(self):
@@ -74,10 +77,12 @@ class AddMeetupLocationMemberForm(ModelFormWithHelper):
         helper_cancel_href = "{% url 'members_meetup_location' meetup_location.slug %}"
 
     def save(self, commit=True):
-        """Override save to map input username to User and append it to the meetup location."""
+        """Override save to map input username to User and append it to the meetup location. Also,
+        send the corresponding user the relevent notification."""
         instance = super(AddMeetupLocationMemberForm, self).save(commit=False)
         user = get_object_or_404(User, username=self.username)
         systersuser = get_object_or_404(SystersUser, user=user)
+        notification.send([user], "joined_meetup_location")
         if systersuser not in instance.members.all():
             instance.members.add(systersuser)
         if commit:
@@ -180,12 +185,15 @@ class AddSupportRequestForm(ModelFormWithHelper):
         super(AddSupportRequestForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
-        """Override save to add volunteer and meetup to the instance"""
+        """Override save to add volunteer and meetup to the instance. Also, send notification to
+        all organizers."""
         instance = super(AddSupportRequestForm, self).save(commit=False)
         instance.volunteer = SystersUser.objects.get(user=self.volunteer)
         instance.meetup = self.meetup
+        organizers = [syster.user for syster in instance.meetup.meetup_location.organizers.all()]
         if commit:
             instance.save()
+            notification.send(organizers, "new_support_request")
         return instance
 
 
