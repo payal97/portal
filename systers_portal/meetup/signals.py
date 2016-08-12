@@ -84,6 +84,7 @@ def delete_meetup_location_organizers(sender, **kwargs):
 
 @receiver(post_migrate, dispatch_uid="create_notice_types")
 def create_notice_types(sender, **kwargs):
+    """Create notice types to send email notifications"""
     NoticeType.create("new_join_request", ("New Join Request"),
                       ("a user has requested to join the meetup location"))
     NoticeType.create("joined_meetup_location", ("Joined Meetup Location"),
