@@ -96,14 +96,16 @@ class MeetupViewTestCase(MeetupLocationViewBaseTestCase, TestCase):
 class MeetupLocationMembersViewTestCase(MeetupLocationViewBaseTestCase, TestCase):
     def test_view_meetup_location_members_view(self):
         """Test Meetup Location members view for correct http response"""
-        url = reverse('members_meetup_location', kwargs={'slug': 'foo'})
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'meetup/members.html')
+        self.client.login(username='foo', password='foobar')
 
         nonexistent_url = reverse('members_meetup_location', kwargs={'slug': 'bar'})
         response = self.client.get(nonexistent_url)
         self.assertEqual(response.status_code, 404)
+
+        url = reverse('members_meetup_location', kwargs={'slug': 'foo'})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'meetup/members.html')
 
 
 class AddMeetupViewTestCase(MeetupLocationViewBaseTestCase, TestCase):

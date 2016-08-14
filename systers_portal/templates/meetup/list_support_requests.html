@@ -3,6 +3,13 @@
 {% block meetup_location_page_content %}
   <div class="mt20 mb40">
     <h2 class="ml15">Support Requests</h2>
+    {% if not supportrequest_list %}
+      <div class="box-container box-body pt25">
+        <p>
+          <i>No support requests to show.</i>
+        </p>
+      </div>
+    {% endif %}
     {% for support_request in supportrequest_list %}
       <div class="mt20 ml15 box-container box-body">
         <p>
