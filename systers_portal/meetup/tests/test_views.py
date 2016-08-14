@@ -974,7 +974,8 @@ class SupportRequestsListViewTestCase(MeetupLocationViewBaseTestCase, TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "meetup/list_support_requests.html")
         self.assertEqual(len(response.context['supportrequest_list']), 1)
-        self.assertEqual(response.context['supportrequest_list'][0].description, "Support Request: 1")
+        self.assertEqual(response.context['supportrequest_list'][0].description,
+                         "Support Request: 1")
 
 
 class UnapprovedSupportRequestsListViewTestCase(MeetupLocationViewBaseTestCase, TestCase):
@@ -1000,7 +1001,8 @@ class UnapprovedSupportRequestsListViewTestCase(MeetupLocationViewBaseTestCase, 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "meetup/unapproved_support_requests.html")
         self.assertEqual(len(response.context['supportrequest_list']), 1)
-        self.assertEqual(response.context['supportrequest_list'][0].description, "Support Request: 2")
+        self.assertEqual(response.context['supportrequest_list'][0].description,
+                         "Support Request: 2")
 
 
 class ApproveSupportRequestViewTestCase(MeetupLocationViewBaseTestCase, TestCase):
@@ -1025,7 +1027,8 @@ class ApproveSupportRequestViewTestCase(MeetupLocationViewBaseTestCase, TestCase
         self.assertEqual(response.status_code, 200)
         self.assertRedirects(response, 'meetup/foo/foo-bar-baz/unapproved_support_requests/')
         self.assertEqual(len(response.context['supportrequest_list']), 1)
-        self.assertEqual(response.context['supportrequest_list'][0].description, "Support Request: 2")
+        self.assertEqual(response.context['supportrequest_list'][0].description,
+                         "Support Request: 2")
 
 
 class RejectSupportRequestViewTestCase(MeetupLocationViewBaseTestCase, TestCase):
@@ -1050,7 +1053,8 @@ class RejectSupportRequestViewTestCase(MeetupLocationViewBaseTestCase, TestCase)
         self.assertEqual(response.status_code, 200)
         self.assertRedirects(response, 'meetup/foo/foo-bar-baz/unapproved_support_requests/')
         self.assertEqual(len(response.context['supportrequest_list']), 1)
-        self.assertEqual(response.context['supportrequest_list'][0].description, "Support Request: 2")
+        self.assertEqual(response.context['supportrequest_list'][0].description,
+                         "Support Request: 2")
 
 
 class AddSupportRequestCommentViewTestCase(MeetupLocationViewBaseTestCase, TestCase):

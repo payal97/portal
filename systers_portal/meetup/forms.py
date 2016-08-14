@@ -39,7 +39,8 @@ class AddMeetupForm(ModelFormWithHelper):
         members = [systers_user.user for systers_user in self.meetup_location.members.all()]
         if commit:
             instance.save()
-            notification.send(members, 'new_meetup', {'meetup_location': self.meetup_location, 'meetup': instance})
+            notification.send(members, 'new_meetup', {'meetup_location': self.meetup_location,
+                              'meetup': instance})
         return instance
 
     def clean_date(self):
@@ -195,7 +196,7 @@ class AddSupportRequestForm(ModelFormWithHelper):
             instance.save()
             notification.send(organizers, 'new_support_request',
                               {'meetup_location': instance.meetup.meetup_location,
-                              'meetup': instance.meetup, 'systersuser': instance.volunteer})
+                                  'meetup': instance.meetup, 'systersuser': instance.volunteer})
         return instance
 
 
