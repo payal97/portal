@@ -1,0 +1,1 @@
+{{ systersuser }} has requested to join {{ meetup_location }}.

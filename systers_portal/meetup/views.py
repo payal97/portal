@@ -296,7 +296,7 @@ class MakeMeetupLocationOrganizerView(LoginRequiredMixin, PermissionRequiredMixi
         organizers = self.meetup_location.organizers.all()
         if systersuser not in organizers:
             self.meetup_location.organizers.add(systersuser)
-            notification.send([user], "made_organizer")
+            notification.send([user], 'made_organizer', {'meetup_location': self.meetup_location})
         return reverse('members_meetup_location', kwargs={'slug': self.meetup_location.slug})
 
     def get_meetup_location(self):
@@ -332,7 +332,7 @@ class JoinMeetupLocationView(LoginRequiredMixin, MeetupLocationMixin, RedirectVi
             msg = "Your request to join meetup location {0} has been sent. In a short while " \
                   "someone will review your request."
             messages.add_message(request, messages.SUCCESS, msg.format(self.meetup_location))
-            notification.send(organizers, "new_join_request")
+            notification.send(organizers, 'new_join_request', {'meetup_location': self.meetup_location, 'systersuser': systersuser})
         elif systersuser in join_requests:
             msg = "You have already requested to join meetup location {0}. Please wait until " \
                   "someone reviews your request."
@@ -373,7 +373,7 @@ class ApproveMeetupLocationJoinRequestView(LoginRequiredMixin, PermissionRequire
         systersuser = get_object_or_404(SystersUser, user=user)
         self.meetup_location.members.add(systersuser)
         self.meetup_location.join_requests.remove(systersuser)
-        notification.send([user], "joined_meetup_location")
+        notification.send([user], 'joined_meetup_location', {'meetup_location': self.meetup_location})
         return reverse('join_requests_meetup_location', kwargs={'slug': self.meetup_location.slug})
 
     def get_meetup_location(self):
@@ -782,7 +782,7 @@ class ApproveSupportRequestView(LoginRequiredMixin, PermissionRequiredMixin, Mee
         support_request = get_object_or_404(SupportRequest, pk=self.kwargs['pk'])
         support_request.is_approved = True
         support_request.save()
-        notification.send([support_request.volunteer.user], "support_request_approved")
+        notification.send([support_request.volunteer.user], 'support_request_approved', {'meetup': self.meetup})
         return reverse('unapproved_support_requests', kwargs={'slug': self.meetup_location.slug,
                        'meetup_slug': self.meetup.slug})
 

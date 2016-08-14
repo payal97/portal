@@ -1,0 +1,1 @@
+You are now a Member of the meetup location {{ meetup_location }}.

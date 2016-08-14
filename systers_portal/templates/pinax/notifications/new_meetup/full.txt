@@ -1,0 +1,1 @@
+Meetup location {{ meetup_location }} has a new meetup: {{ meetup }}.
