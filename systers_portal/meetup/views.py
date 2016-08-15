@@ -789,7 +789,8 @@ class ApproveSupportRequestView(LoginRequiredMixin, PermissionRequiredMixin, Mee
         support_request.is_approved = True
         support_request.save()
         notification.send([support_request.volunteer.user], 'support_request_approved',
-                          {'meetup': self.meetup})
+                          {'meetup_location': self.meetup_location, 'meetup': self.meetup,
+                              'support_request': support_request})
         return reverse('unapproved_support_requests', kwargs={'slug': self.meetup_location.slug,
                        'meetup_slug': self.meetup.slug})
 

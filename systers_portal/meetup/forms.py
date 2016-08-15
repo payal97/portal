@@ -196,7 +196,8 @@ class AddSupportRequestForm(ModelFormWithHelper):
             instance.save()
             notification.send(organizers, 'new_support_request',
                               {'meetup_location': instance.meetup.meetup_location,
-                                  'meetup': instance.meetup, 'systersuser': instance.volunteer})
+                                  'meetup': instance.meetup, 'systersuser': instance.volunteer,
+                                  'support_request': instance})
         return instance
 
 
